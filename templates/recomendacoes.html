@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Recomendações</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Filmes recomendados</h1>
+
+        <div class="filme-escolhido">
+
+            <h2>
+                Filme escolhido:
+            </h2>
+
+            <p>
+                {{ filme.title }}
+            </p>
+
+            <p>
+                Gêneros: {{ filme.genres }}
+            </p>
+
+        </div>
+
+
+        <h2>
+            Você também pode gostar:
+        </h2>
+
+
+        <div class="filmes">
+
+            {% for filme in recomendacoes %}
+
+                <div class="card">
+
+                    <h3>
+                        {{ filme.title }}
+                    </h3>
+
+                    <p>
+                        {{ filme.genres }}
+                    </p>
+
+                    <p>
+                        Similaridade:
+                        {{ "%.2f"|format(filme.similaridade) }}
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <a href="/">
+            Escolher outro filme
+        </a>
+
+    </div>
+
+</body>
+
+</html>

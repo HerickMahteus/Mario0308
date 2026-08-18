@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Sistema de Recomendação de Filmes</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Sistema de Recomendação de Filmes</h1>
+
+        <p>
+            Escolha um filme para receber recomendações.
+        </p>
+
+        <form action="/recomendar" method="POST">
+
+            <label for="movie_id">
+                Escolha um filme:
+            </label>
+
+            <select name="movie_id" id="movie_id">
+
+                {% for filme in filmes %}
+
+                    <option value="{{ filme.movieId }}">
+                        {{ filme.title }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Recomendar filmes
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>
