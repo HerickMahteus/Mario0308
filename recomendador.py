@@ -8,6 +8,8 @@ class Recomendador:
     def __init__(self):
         self.movies = pd.read_csv("data/movies.csv")
 
+        self.ratings = pd.read_csv("data/ratings.csv")
+
         self.movies["genres"] = self.movies["genres"].fillna("")
 
         self.vectorizer = TfidfVectorizer(

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from recomendador import Recomendador
 
 app = Flask(__name__)
@@ -9,11 +9,111 @@ recomendador = Recomendador()
 @app.route("/")
 def index():
 
-    filmes = recomendador.movies.sort_values("title")
+    filmes = recomendador.movies.copy()
+
+    # ---------------------------------------------------------
+    # Filmes em destaque
+    # ---------------------------------------------------------
+
+    destaque = filmes.sample(1).iloc[0].to_dict()
+
+    # ---------------------------------------------------------
+    # Filmes mais populares
+    # ---------------------------------------------------------
+    #
+    # Conta quantas avaliações cada filme possui.
+    #
+
+    avaliacoes = recomendador.ratings
+
+    popularidade = (
+        avaliacoes
+        .groupby("movieId")
+        .size()
+        .reset_index(name="quantidade_avaliacoes")
+    )
+
+    populares = filmes.merge(
+        popularidade,
+        on="movieId",
+        how="left"
+    )
+
+    populares["quantidade_avaliacoes"] = (
+        populares["quantidade_avaliacoes"]
+        .fillna(0)
+    )
+
+    populares = populares.sort_values(
+        "quantidade_avaliacoes",
+        ascending=False
+    ).head(20)
+
+    # ---------------------------------------------------------
+    # Filmes por gênero
+    # ---------------------------------------------------------
+
+    generos = [
+        "Action",
+        "Adventure",
+        "Animation",
+        "Comedy",
+        "Crime",
+        "Drama",
+        "Fantasy",
+        "Horror",
+        "Romance",
+        "Sci-Fi",
+        "Thriller"
+    ]
+
+    filmes_por_genero = {}
+
+    for genero in generos:
+
+        filtrados = filmes[
+            filmes["genres"].str.contains(
+                genero,
+                case=False,
+                na=False
+            )
+        ].head(20)
+
+        filmes_por_genero[genero] = (
+            filtrados.to_dict("records")
+        )
+
+    # ---------------------------------------------------------
+    # Filmes recomendados
+    # ---------------------------------------------------------
+    #
+    # Por enquanto escolhemos aleatoriamente um filme e
+    # mostramos filmes semelhantes.
+    #
+    # Depois podemos substituir isso pelas recomendações
+    # baseadas no usuário.
+    #
+
+    recomendacoes = []
+
+    try:
+
+        filme_base = filmes.sample(1).iloc[0]
+
+        recomendacoes = recomendador.recomendar(
+            int(filme_base["movieId"]),
+            20
+        ).to_dict("records")
+
+    except Exception:
+        pass
 
     return render_template(
         "index.html",
-        filmes=filmes.to_dict("records")
+        destaque=destaque,
+        populares=populares.to_dict("records"),
+        filmes_por_genero=filmes_por_genero,
+        recomendacoes=recomendacoes
     )
 
 
@@ -35,6 +135,28 @@ def recomendar():
         "recomendacoes.html",
         filme=filme_selecionado.iloc[0].to_dict(),
         recomendacoes=recomendacoes.to_dict("records")
+    )
+
+
+@app.route("/buscar")
+def buscar():
+
+    termo = request.args.get("q", "").strip()
+
+    if not termo:
+        return jsonify([])
+
+    filmes = recomendador.movies[
+        recomendador.movies["title"]
+        .str.contains(
+            termo,
+            case=False,
+            na=False
+        )
+    ].head(10)
+
+    return jsonify(
+        filmes.to_dict("records")
     )
 
 

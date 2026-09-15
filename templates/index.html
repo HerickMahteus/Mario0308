@@ -2,49 +2,514 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <title>Sistema de Recomendação de Filmes</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>FilmFlix</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-    <div class="container">
 
-        <h1>Sistema de Recomendação de Filmes</h1>
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
-        <p>
-            Escolha um filme para receber recomendações.
-        </p>
+<header class="navbar">
 
-        <form action="/recomendar" method="POST">
+    <div class="logo">
+        FILMFLIX
+    </div>
 
-            <label for="movie_id">
-                Escolha um filme:
-            </label>
+    <nav>
 
-            <select name="movie_id" id="movie_id">
+        <a href="/" class="active">
+            Início
+        </a>
 
-                {% for filme in filmes %}
+        <a href="#filmes">
+            Filmes
+        </a>
 
-                    <option value="{{ filme.movieId }}">
-                        {{ filme.title }}
-                    </option>
+        <a href="#generos">
+            Gêneros
+        </a>
 
-                {% endfor %}
+    </nav>
 
-            </select>
 
-            <button type="submit">
-                Recomendar filmes
-            </button>
+    <div class="navbar-right">
 
-        </form>
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Buscar filmes..."
+                autocomplete="off"
+            >
+
+            <span class="search-icon">
+                🔍
+            </span>
+
+        </div>
+
+        <div class="profile">
+            👤
+        </div>
 
     </div>
+
+</header>
+
+
+<!-- =====================================================
+     RESULTADOS DA PESQUISA
+===================================================== -->
+
+<div id="searchResults"
+     class="search-results">
+</div>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <p class="hero-label">
+            EM DESTAQUE
+        </p>
+
+        <h1>
+            {{ destaque.title }}
+        </h1>
+
+        <div class="hero-info">
+
+            <span>
+                🎬 Filme
+            </span>
+
+            <span>
+                {{ destaque.genres }}
+            </span>
+
+        </div>
+
+        <p class="hero-description">
+
+            Descubra este filme e encontre outras obras
+            semelhantes através do nosso sistema de
+            recomendação.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <form action="/recomendar"
+                  method="POST">
+
+                <input
+                    type="hidden"
+                    name="movie_id"
+                    value="{{ destaque.movieId }}"
+                >
+
+                <button class="btn-primary"
+                        type="submit">
+
+                    ▶ Ver recomendações
+
+                </button>
+
+            </form>
+
+            <button
+                class="btn-secondary"
+                onclick="mostrarDetalhes(
+                    '{{ destaque.title|replace("'", "\\'") }}',
+                    '{{ destaque.genres|replace("'", "\\'") }}'
+                )">
+
+                ⓘ Mais informações
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CONTEÚDO
+===================================================== -->
+
+<main id="filmes">
+
+
+<!-- =====================================================
+     RECOMENDADOS
+===================================================== -->
+
+{% if recomendacoes %}
+
+<section class="movie-section">
+
+    <div class="section-header">
+
+        <h2>
+            Recomendados para você
+        </h2>
+
+    </div>
+
+
+    <div class="movie-row">
+
+        <button
+            class="carousel-button left"
+            onclick="scrollRow(this, -1)">
+            ‹
+        </button>
+
+
+        <div class="movie-container">
+
+            {% for filme in recomendacoes %}
+
+            <div class="movie-card">
+
+                <div class="poster">
+
+                    <div class="poster-content">
+
+                        <span class="poster-icon">
+                            🎬
+                        </span>
+
+                        <span class="poster-title">
+                            {{ filme.title }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="movie-info">
+
+                    <h3>
+                        {{ filme.title }}
+                    </h3>
+
+                    <p>
+                        {{ filme.genres }}
+                    </p>
+
+                    {% if filme.similaridade is defined %}
+
+                    <span class="similarity">
+                        {{ "%.0f"|format(filme.similaridade * 100) }}%
+                        semelhante
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button
+            class="carousel-button right"
+            onclick="scrollRow(this, 1)">
+            ›
+        </button>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- =====================================================
+     MAIS POPULARES
+===================================================== -->
+
+<section class="movie-section">
+
+    <div class="section-header">
+
+        <h2>
+            Mais populares
+        </h2>
+
+    </div>
+
+
+    <div class="movie-row">
+
+        <button
+            class="carousel-button left"
+            onclick="scrollRow(this, -1)">
+            ‹
+        </button>
+
+
+        <div class="movie-container">
+
+            {% for filme in populares %}
+
+            <div class="movie-card">
+
+                <form action="/recomendar"
+                      method="POST">
+
+                    <input
+                        type="hidden"
+                        name="movie_id"
+                        value="{{ filme.movieId }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="movie-button"
+                    >
+
+                        <div class="poster">
+
+                            <div class="poster-content">
+
+                                <span class="poster-icon">
+                                    🎬
+                                </span>
+
+                                <span class="poster-title">
+                                    {{ filme.title }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </button>
+
+                </form>
+
+
+                <div class="movie-info">
+
+                    <h3>
+                        {{ filme.title }}
+                    </h3>
+
+                    <p>
+                        {{ filme.genres }}
+                    </p>
+
+                    <span class="popular">
+                        🔥 {{ filme.quantidade_avaliacoes }}
+                        avaliações
+                    </span>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button
+            class="carousel-button right"
+            onclick="scrollRow(this, 1)">
+            ›
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     GÊNEROS
+===================================================== -->
+
+<div id="generos">
+
+{% for genero, filmes in filmes_por_genero.items() %}
+
+{% if filmes %}
+
+<section class="movie-section">
+
+    <div class="section-header">
+
+        <h2>
+            Filmes de {{ genero }}
+        </h2>
+
+    </div>
+
+
+    <div class="movie-row">
+
+        <button
+            class="carousel-button left"
+            onclick="scrollRow(this, -1)">
+            ‹
+        </button>
+
+
+        <div class="movie-container">
+
+            {% for filme in filmes %}
+
+            <div class="movie-card">
+
+                <form action="/recomendar"
+                      method="POST">
+
+                    <input
+                        type="hidden"
+                        name="movie_id"
+                        value="{{ filme.movieId }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="movie-button"
+                    >
+
+                        <div class="poster">
+
+                            <div class="poster-content">
+
+                                <span class="poster-icon">
+                                    🎬
+                                </span>
+
+                                <span class="poster-title">
+                                    {{ filme.title }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </button>
+
+                </form>
+
+
+                <div class="movie-info">
+
+                    <h3>
+                        {{ filme.title }}
+                    </h3>
+
+                    <p>
+                        {{ filme.genres }}
+                    </p>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button
+            class="carousel-button right"
+            onclick="scrollRow(this, 1)">
+            ›
+        </button>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endfor %}
+
+</div>
+
+
+</main>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div id="movieModal"
+     class="modal">
+
+    <div class="modal-content">
+
+        <button
+            class="modal-close"
+            onclick="fecharDetalhes()">
+
+            ×
+
+        </button>
+
+        <h2 id="modalTitle">
+        </h2>
+
+        <p id="modalGenres">
+        </p>
+
+        <p>
+            Selecione este filme para descobrir
+            recomendações semelhantes.
+        </p>
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    <p>
+        FilmFlix — Sistema de Recomendação de Filmes
+    </p>
+
+    <p>
+        Desenvolvido utilizando Python, Flask e MovieLens.
+    </p>
+
+</footer>
+
+
+<script src="{{ url_for('static', filename='script.js') }}">
+</script>
 
 </body>
 
