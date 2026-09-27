@@ -11,18 +11,7 @@ def index():
 
     filmes = recomendador.movies.copy()
 
-    # ---------------------------------------------------------
-    # Filmes em destaque
-    # ---------------------------------------------------------
-
     destaque = filmes.sample(1).iloc[0].to_dict()
-
-    # ---------------------------------------------------------
-    # Filmes mais populares
-    # ---------------------------------------------------------
-    #
-    # Conta quantas avaliações cada filme possui.
-    #
 
     avaliacoes = recomendador.ratings
 
@@ -48,10 +37,6 @@ def index():
         "quantidade_avaliacoes",
         ascending=False
     ).head(20)
-
-    # ---------------------------------------------------------
-    # Filmes por gênero
-    # ---------------------------------------------------------
 
     generos = [
         "Action",
@@ -82,17 +67,6 @@ def index():
         filmes_por_genero[genero] = (
             filtrados.to_dict("records")
         )
-
-    # ---------------------------------------------------------
-    # Filmes recomendados
-    # ---------------------------------------------------------
-    #
-    # Por enquanto escolhemos aleatoriamente um filme e
-    # mostramos filmes semelhantes.
-    #
-    # Depois podemos substituir isso pelas recomendações
-    # baseadas no usuário.
-    #
 
     recomendacoes = []
 

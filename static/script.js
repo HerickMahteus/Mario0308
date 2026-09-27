@@ -1,7 +1,3 @@
-/* =====================================================
-   CARROSSEL
-===================================================== */
-
 function scrollRow(button, direction) {
 
     const row = button.parentElement;
@@ -21,10 +17,6 @@ function scrollRow(button, direction) {
     });
 }
 
-
-/* =====================================================
-   MODAL
-===================================================== */
 
 function mostrarDetalhes(title, genres) {
 
@@ -56,10 +48,6 @@ function fecharDetalhes() {
 }
 
 
-/* =====================================================
-   FECHAR MODAL CLICANDO FORA
-===================================================== */
-
 window.addEventListener(
     "click",
     function(event) {
@@ -76,10 +64,6 @@ window.addEventListener(
     }
 );
 
-
-/* =====================================================
-   PESQUISA DE FILMES
-===================================================== */
 
 const searchInput =
     document.getElementById("searchInput");
@@ -207,10 +191,6 @@ searchInput.addEventListener(
 );
 
 
-/* =====================================================
-   SELECIONAR FILME DA PESQUISA
-===================================================== */
-
 function selecionarFilme(movieId) {
 
     const form =
@@ -239,10 +219,6 @@ function selecionarFilme(movieId) {
 }
 
 
-/* =====================================================
-   ESC
-===================================================== */
-
 document.addEventListener(
     "keydown",
     function(event) {
@@ -259,10 +235,6 @@ document.addEventListener(
     }
 );
 
-
-/* =====================================================
-   NAVBAR AO ROLAR
-===================================================== */
 
 window.addEventListener(
     "scroll",
